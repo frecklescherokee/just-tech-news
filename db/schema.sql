@@ -1,0 +1,3 @@
+-- tell Sequelize to create a table, dropping the previous iteration of one exists
+DROP DATABASE IF EXISTS just_tech_news_db;
+CREATE DATABASE just_tech_news_db;
