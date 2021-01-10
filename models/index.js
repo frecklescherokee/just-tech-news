@@ -1,4 +1,4 @@
-/////////// this file is for collecting and exporting the User model data
+/////////// this file is for collecting and exporting the various models data
 
 const User = require('./User');
 
