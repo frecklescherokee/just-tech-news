@@ -3,7 +3,11 @@
 const router = require('express').Router();
 // we included User in addition to Post since we'll need data from User for our foreign key constraints
 // since each Post must belong to a single User
-const { Post, User } = require('../../models');
+const { Post, User, Vote } = require('../../models');
+
+// import Sequelize so we can sum upvotes and return that value when an upvote happens
+const sequelize = require('../../config/connection');
+
 
 
 // get all users
@@ -11,7 +15,13 @@ router.get('/', (req, res) => {
     console.log('======================');
     Post.findAll({
       // which columns we want
-      attributes: ['id', 'post_url', 'title', 'created_at'],
+      attributes: [
+          'id', 
+          'post_url', 
+          'title', 
+          'created_at',
+          [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+    ],
       // join to the User table, notice it is an array of objects
       // if you were joining to another table, that would be another object in the array
       include: [
@@ -34,7 +44,13 @@ router.get('/:id', (req, res) => {
       where: {
         id: req.params.id
       },
-      attributes: ['id', 'post_url', 'title', 'created_at'],
+      attributes: [
+          'id', 
+          'post_url', 
+          'title', 
+          'created_at',
+          [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+    ],
       include: [
         {
           model: User,
@@ -68,6 +84,19 @@ router.post('/', (req, res) => {
         console.log(err);
         res.status(500).json(err);
       });
+});
+
+// route to PUT an upvote on a post: /api/posts/upvote
+router.put('/upvote', (req, res) => {
+    // when user clicks the upvote icon, create an entry in the Vote table
+    // with the userID and postID of the vote
+    // 'upvote' is a custom static method created in models/Post.js
+  Post.upvote(req.body, { Vote })
+  .then(updatedPostData => res.json(updatedPostData))
+  .catch(err => {
+    console.log(err);
+    res.status(400).json(err);
+  });
 });
 
 // route to update (PUT) a Post's title
