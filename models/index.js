@@ -3,6 +3,7 @@
 const User = require("./User");
 const Post = require("./Post");
 const Vote = require('./Vote');
+const Comment = require('./Comment');
 
 // create associations relating User to Post for Post ownership relationship
 User.hasMany(Post, {
@@ -46,7 +47,24 @@ User.hasMany(Vote, {
     foreignKey: 'user_id'
 });
 
+// Create associations between Comment, User and Post
+Comment.belongsTo(User, {
+    foreignKey: 'user_id'
+});
+  
+Comment.belongsTo(Post, {
+    foreignKey: 'post_id'
+});
+  
+User.hasMany(Comment, {
+    foreignKey: 'user_id'
+});
+  
+Post.hasMany(Comment, {
+    foreignKey: 'post_id'
+});
 
 
 
-module.exports = { User, Post, Vote };
+
+module.exports = { User, Post, Vote, Comment };

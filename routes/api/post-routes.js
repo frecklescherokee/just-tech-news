@@ -3,7 +3,7 @@
 const router = require('express').Router();
 // we included User in addition to Post since we'll need data from User for our foreign key constraints
 // since each Post must belong to a single User
-const { Post, User, Vote } = require('../../models');
+const { Post, User, Vote, Comment } = require('../../models');
 
 // import Sequelize so we can sum upvotes and return that value when an upvote happens
 const sequelize = require('../../config/connection');
@@ -25,6 +25,14 @@ router.get('/', (req, res) => {
       // join to the User table, notice it is an array of objects
       // if you were joining to another table, that would be another object in the array
       include: [
+        {
+            model: Comment,
+            attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+            include: {
+              model: User,
+              attributes: ['username']
+            }
+        },
         {
           model: User,
           attributes: ['username']
@@ -52,6 +60,14 @@ router.get('/:id', (req, res) => {
           [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
     ],
       include: [
+        {
+            model: Comment,
+            attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+            include: {
+              model: User,
+              attributes: ['username']
+            }
+        },
         {
           model: User,
           attributes: ['username']
